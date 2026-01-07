@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String
+  role          UserRole  @default(STARTUP)
+  organization  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  projects      Project[]
+  evaluations   Evaluation[]
+}
+
+model Project {
+  id            String    @id @default(cuid())
+  title         String
+  description   String
+  problem       String
+  solution      String
+  trl           Int       @default(1)
+  stage         ProjectStage @default(SUBMITTED)
+  budget        Float?
+  sector        String
+  impact        String
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  evaluations   Evaluation[]
+  documents     Document[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Evaluation {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id])
+  evaluatorId String
+  evaluator   User      @relation(fields: [evaluatorId], references: [id])
+  score       Float
+  comments    String?
+  status      EvalStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+}
+
+model Document {
+  id        String    @id @default(cuid())
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id])
+  name      String
+  url       String
+  type      DocType
+  createdAt DateTime  @default(now())
+}
+
+enum UserRole {
+  STARTUP
+  GOVERNO
+  INVESTIDOR
+  ADMIN
+}
+
+enum ProjectStage {
+  SUBMITTED
+  ANALYZING
+  TRL_EVALUATION
+  POC
+  MVP
+  SCALING
+  COMPLETED
+  REJECTED
+}
+
+enum EvalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVISION
+}
+
+enum DocType {
+  PITCH
+  TECHNICAL
+  FINANCIAL
+  LEGAL
+  OTHER
+}
