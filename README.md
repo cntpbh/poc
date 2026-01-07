@@ -1,32 +1,11 @@
-# IBEDIS Connect 🚀
 
-Plataforma de conexão entre startups, governo e investidores para inovação no setor público.
+  # IBEDIS Connect Design
 
-## 🚀 Deploy Rápido na Vercel
+  This is a code bundle for IBEDIS Connect Design. The original project is available at https://www.figma.com/design/RKSQoXIbwiVyLgHrzyMwnT/IBEDIS-Connect-Design.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SEU-USUARIO/ibedis-connect)
+  ## Running the code
 
-## 📋 Pré-requisitos
+  Run `npm i` to install the dependencies.
 
-- Node.js 18+
-- Conta na Vercel
-- Banco PostgreSQL (recomendo Supabase ou Neon)
-
-## 🛠️ Instalação Local
-
-```bash
-# Clone o repositório
-git clone https://github.com/SEU-USUARIO/ibedis-connect.git
-cd ibedis-connect
-
-# Instale as dependências
-npm install
-
-# Configure as variáveis de ambiente
-cp .env.example .env.local
-
-# Configure o banco de dados
-npx prisma db push
-
-# Execute o projeto
-npm run dev
+  Run `npm run dev` to start the development server.
+  
