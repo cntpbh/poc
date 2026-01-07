@@ -6,7 +6,6 @@ export function Footer() {
     <footer className="bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo e Descrição */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
               <Rocket className="h-8 w-8 text-blue-400" />
@@ -34,7 +33,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Links Rápidos */}
           <div>
             <h3 className="text-white font-semibold mb-4">Links Rápidos</h3>
             <ul className="space-y-2">
@@ -66,7 +64,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contato */}
           <div>
             <h3 className="text-white font-semibold mb-4">Contato</h3>
             <ul className="space-y-2">

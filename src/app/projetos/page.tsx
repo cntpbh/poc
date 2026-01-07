@@ -38,7 +38,7 @@ export default function ProjetosPage() {
     },
   ]
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     POC: 'bg-yellow-100 text-yellow-800',
     MVP: 'bg-blue-100 text-blue-800',
     Scaling: 'bg-green-100 text-green-800',
@@ -61,7 +61,7 @@ export default function ProjetosPage() {
             <Card key={project.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start mb-2">
-                  <Badge className={statusColors[project.status as keyof typeof statusColors]}>
+                  <Badge className={statusColors[project.status]}>
                     {project.status}
                   </Badge>
                   <span className="text-sm text-gray-500">TRL {project.trl}</span>
