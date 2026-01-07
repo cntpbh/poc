@@ -1,0 +1,609 @@
+name: Setup IBEDIS Connect Project
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/setup-project.yml'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Create Project Structure
+      run: |
+        # Criar estrutura de pastas
+        mkdir -p src/app/{layout,page,globals,api,dashboard,projetos/novo}
+        mkdir -p src/components/{ui,providers}
+        mkdir -p src/lib
+        mkdir -p src/types
+        mkdir -p prisma
+        mkdir -p public/images
+
+    - name: Create package.json
+      run: |
+        cat > package.json << 'EOL'
+        {
+          "name": "ibedis-connect",
+          "version": "1.0.0",
+          "private": true,
+          "scripts": {
+            "dev": "next dev",
+            "build": "next build",
+            "start": "next start",
+            "lint": "next lint",
+            "prisma:generate": "prisma generate",
+            "prisma:push": "prisma db push",
+            "postinstall": "prisma generate"
+          },
+          "dependencies": {
+            "next": "14.0.4",
+            "react": "^18",
+            "react-dom": "^18",
+            "@prisma/client": "^5.7.0",
+            "next-auth": "^4.24.5",
+            "@radix-ui/react-dialog": "^1.0.5",
+            "@radix-ui/react-dropdown-menu": "^2.0.6",
+            "@radix-ui/react-label": "^2.0.2",
+            "@radix-ui/react-select": "^2.0.0",
+            "@radix-ui/react-slot": "^1.0.2",
+            "@radix-ui/react-tabs": "^1.0.4",
+            "@radix-ui/react-toast": "^1.1.5",
+            "class-variance-authority": "^0.7.0",
+            "clsx": "^2.0.0",
+            "lucide-react": "^0.294.0",
+            "tailwind-merge": "^2.1.0",
+            "tailwindcss-animate": "^1.0.7",
+            "zod": "^3.22.4",
+            "react-hook-form": "^7.48.2",
+            "@hookform/resolvers": "^3.3.2",
+            "recharts": "^2.10.3",
+            "date-fns": "^2.30.0"
+          },
+          "devDependencies": {
+            "@types/node": "^20",
+            "@types/react": "^18",
+            "@types/react-dom": "^18",
+            "autoprefixer": "^10.0.1",
+            "postcss": "^8",
+            "tailwindcss": "^3.3.0",
+            "typescript": "^5",
+            "prisma": "^5.7.0",
+            "eslint": "^8",
+            "eslint-config-next": "14.0.4"
+          }
+        }
+        EOL
+
+    - name: Create Configuration Files
+      run: |
+        # next.config.js
+        cat > next.config.js << 'EOL'
+        /** @type {import('next').NextConfig} */
+        const nextConfig = {
+          eslint: {
+            ignoreDuringBuilds: true,
+          },
+          typescript: {
+            ignoreBuildErrors: true,
+          },
+        }
+        
+        module.exports = nextConfig
+        EOL
+
+        # tsconfig.json
+        cat > tsconfig.json << 'EOL'
+        {
+          "compilerOptions": {
+            "target": "es5",
+            "lib": ["dom", "dom.iterable", "esnext"],
+            "allowJs": true,
+            "skipLibCheck": true,
+            "strict": true,
+            "forceConsistentCasingInFileNames": true,
+            "noEmit": true,
+            "esModuleInterop": true,
+            "module": "esnext",
+            "moduleResolution": "node",
+            "resolveJsonModule": true,
+            "isolatedModules": true,
+            "jsx": "preserve",
+            "incremental": true,
+            "plugins": [
+              {
+                "name": "next"
+              }
+            ],
+            "paths": {
+              "@/*": ["./src/*"]
+            }
+          },
+          "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+          "exclude": ["node_modules"]
+        }
+        EOL
+
+        # tailwind.config.ts
+        cat > tailwind.config.ts << 'EOL'
+        import type { Config } from 'tailwindcss'
+
+        const config: Config = {
+          darkMode: ["class"],
+          content: [
+            './pages/**/*.{ts,tsx}',
+            './components/**/*.{ts,tsx}',
+            './app/**/*.{ts,tsx}',
+            './src/**/*.{ts,tsx}',
+          ],
+          theme: {
+            container: {
+              center: true,
+              padding: "2rem",
+              screens: {
+                "2xl": "1400px",
+              },
+            },
+            extend: {
+              colors: {
+                border: "hsl(var(--border))",
+                input: "hsl(var(--input))",
+                ring: "hsl(var(--ring))",
+                background: "hsl(var(--background))",
+                foreground: "hsl(var(--foreground))",
+                primary: {
+                  DEFAULT: "hsl(var(--primary))",
+                  foreground: "hsl(var(--primary-foreground))",
+                },
+                secondary: {
+                  DEFAULT: "hsl(var(--secondary))",
+                  foreground: "hsl(var(--secondary-foreground))",
+                },
+                destructive: {
+                  DEFAULT: "hsl(var(--destructive))",
+                  foreground: "hsl(var(--destructive-foreground))",
+                },
+                muted: {
+                  DEFAULT: "hsl(var(--muted))",
+                  foreground: "hsl(var(--muted-foreground))",
+                },
+                accent: {
+                  DEFAULT: "hsl(var(--accent))",
+                  foreground: "hsl(var(--accent-foreground))",
+                },
+                popover: {
+                  DEFAULT: "hsl(var(--popover))",
+                  foreground: "hsl(var(--popover-foreground))",
+                },
+                card: {
+                  DEFAULT: "hsl(var(--card))",
+                  foreground: "hsl(var(--card-foreground))",
+                },
+              },
+              borderRadius: {
+                lg: "var(--radius)",
+                md: "calc(var(--radius) - 2px)",
+                sm: "calc(var(--radius) - 4px)",
+              },
+              keyframes: {
+                "accordion-down": {
+                  from: { height: "0" },
+                  to: { height: "var(--radix-accordion-content-height)" },
+                },
+                "accordion-up": {
+                  from: { height: "var(--radix-accordion-content-height)" },
+                  to: { height: "0" },
+                },
+              },
+              animation: {
+                "accordion-down": "accordion-down 0.2s ease-out",
+                "accordion-up": "accordion-up 0.2s ease-out",
+              },
+            },
+          },
+          plugins: [require("tailwindcss-animate")],
+        }
+
+        export default config
+        EOL
+
+        # .env.example
+        cat > .env.example << 'EOL'
+        # Database
+        DATABASE_URL="postgresql://user:password@localhost:5432/ibedis_connect"
+
+        # NextAuth
+        NEXTAUTH_URL="http://localhost:3000"
+        NEXTAUTH_SECRET="your-secret-key-here"
+
+        # OAuth (opcional)
+        GOOGLE_CLIENT_ID=""
+        GOOGLE_CLIENT_SECRET=""
+        EOL
+
+        # .gitignore
+        cat > .gitignore << 'EOL'
+        # dependencies
+        /node_modules
+        /.pnp
+        .pnp.js
+
+        # testing
+        /coverage
+
+        # next.js
+        /.next/
+        /out/
+
+        # production
+        /build
+
+        # misc
+        .DS_Store
+        *.pem
+
+        # debug
+        npm-debug.log*
+        yarn-debug.log*
+        yarn-error.log*
+
+        # local env files
+        .env*.local
+        .env
+
+        # vercel
+        .vercel
+
+        # typescript
+        *.tsbuildinfo
+        next-env.d.ts
+        EOL
+
+    - name: Create Prisma Schema
+      run: |
+        cat > prisma/schema.prisma << 'EOL'
+        generator client {
+          provider = "prisma-client-js"
+        }
+
+        datasource db {
+          provider = "postgresql"
+          url      = env("DATABASE_URL")
+        }
+
+        model User {
+          id            String    @id @default(cuid())
+          email         String    @unique
+          name          String?
+          password      String
+          role          UserRole  @default(STARTUP)
+          organization  String?
+          createdAt     DateTime  @default(now())
+          updatedAt     DateTime  @updatedAt
+          projects      Project[]
+          evaluations   Evaluation[]
+        }
+
+        model Project {
+          id            String    @id @default(cuid())
+          title         String
+          description   String
+          problem       String
+          solution      String
+          trl           Int       @default(1)
+          stage         ProjectStage @default(SUBMITTED)
+          budget        Float?
+          sector        String
+          impact        String
+          userId        String
+          user          User      @relation(fields: [userId], references: [id])
+          evaluations   Evaluation[]
+          documents     Document[]
+          createdAt     DateTime  @default(now())
+          updatedAt     DateTime  @updatedAt
+        }
+
+        model Evaluation {
+          id          String    @id @default(cuid())
+          projectId   String
+          project     Project   @relation(fields: [projectId], references: [id])
+          evaluatorId String
+          evaluator   User      @relation(fields: [evaluatorId], references: [id])
+          score       Float
+          comments    String?
+          status      EvalStatus @default(PENDING)
+          createdAt   DateTime  @default(now())
+        }
+
+        model Document {
+          id        String    @id @default(cuid())
+          projectId String
+          project   Project   @relation(fields: [projectId], references: [id])
+          name      String
+          url       String
+          type      DocType
+          createdAt DateTime  @default(now())
+        }
+
+        enum UserRole {
+          STARTUP
+          GOVERNO
+          INVESTIDOR
+          ADMIN
+        }
+
+        enum ProjectStage {
+          SUBMITTED
+          ANALYZING
+          TRL_EVALUATION
+          POC
+          MVP
+          SCALING
+          COMPLETED
+          REJECTED
+        }
+
+        enum EvalStatus {
+          PENDING
+          APPROVED
+          REJECTED
+          REVISION
+        }
+
+        enum DocType {
+          PITCH
+          TECHNICAL
+          FINANCIAL
+          LEGAL
+          OTHER
+        }
+        EOL
+
+    - name: Create Source Files
+      run: |
+        # Create all TypeScript/React files in a single script
+        node << 'SCRIPT'
+        const fs = require('fs');
+        const path = require('path');
+
+        const files = {
+          'src/lib/utils.ts': `import { type ClassValue, clsx } from "clsx"
+        import { twMerge } from "tailwind-merge"
+
+        export function cn(...inputs: ClassValue[]) {
+          return twMerge(clsx(inputs))
+        }`,
+
+          'src/app/layout.tsx': `import type { Metadata } from 'next'
+        import { Inter } from 'next/font/google'
+        import './globals.css'
+        import { Toaster } from '@/components/ui/toaster'
+        import { AuthProvider } from '@/components/providers/auth-provider'
+
+        const inter = Inter({ subsets: ['latin'] })
+
+        export const metadata: Metadata = {
+          title: 'IBEDIS Connect - Conectando Inovação ao Setor Público',
+          description: 'Plataforma de conexão entre startups, governo e investidores',
+        }
+
+        export default function RootLayout({
+          children,
+        }: {
+          children: React.ReactNode
+        }) {
+          return (
+            <html lang="pt-BR">
+              <body className={inter.className}>
+                <AuthProvider>
+                  {children}
+                  <Toaster />
+                </AuthProvider>
+              </body>
+            </html>
+          )
+        }`,
+
+          'src/app/page.tsx': `import Link from 'next/link'
+        import { Button } from '@/components/ui/button'
+        import { ArrowRight, Rocket, Building, TrendingUp } from 'lucide-react'
+
+        export default function Home() {
+          return (
+            <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+              <section className="relative overflow-hidden">
+                <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+                  <div className="mx-auto max-w-2xl text-center">
+                    <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+                      Conectando <span className="text-blue-600">Inovação</span> ao Setor Público
+                    </h1>
+                    <p className="mt-6 text-lg leading-8 text-gray-600">
+                      A plataforma que une startups, governo e investidores para transformar 
+                      a administração pública através da inovação tecnológica.
+                    </p>
+                    <div className="mt-10 flex items-center justify-center gap-x-6">
+                      <Link href="/register">
+                        <Button size="lg" className="gap-2">
+                          Começar Agora <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Link href="/projetos">
+                        <Button variant="outline" size="lg">
+                          Ver Projetos
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          )
+        }`,
+
+          'src/app/globals.css': `@tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        @layer base {
+          :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --secondary-foreground: 222.2 47.4% 11.2%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --accent-foreground: 222.2 47.4% 11.2%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 221.2 83.2% 53.3%;
+            --radius: 0.5rem;
+          }
+        }
+
+        @layer base {
+          * {
+            @apply border-border;
+          }
+          body {
+            @apply bg-background text-foreground;
+          }
+        }`,
+
+          'src/components/providers/auth-provider.tsx': `'use client'
+
+        import { ReactNode } from 'react'
+
+        export function AuthProvider({ children }: { children: ReactNode }) {
+          return <>{children}</>
+        }`
+        };
+
+        // Create all UI component files
+        const uiComponents = [
+          'button', 'input', 'textarea', 'label', 'select',
+          'card', 'toast', 'toaster', 'use-toast'
+        ];
+
+        // Create empty UI component files for now
+        uiComponents.forEach(component => {
+          const filePath = `src/components/ui/${component}.tsx`;
+          if (!files[filePath]) {
+            files[filePath] = `export {}`;
+          }
+        });
+
+        // Create empty page files
+        const emptyPages = [
+          'src/app/projetos/novo/page.tsx'
+        ];
+
+        emptyPages.forEach(page => {
+          files[page] = `export default function Page() { return <div>Page</div> }`;
+        });
+
+        // Write all files
+        Object.entries(files).forEach(([filePath, content]) => {
+          const dir = path.dirname(filePath);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+          fs.writeFileSync(filePath, content);
+        });
+
+        console.log('All files created successfully!');
+        SCRIPT
+
+    - name: Create UI Components
+      run: |
+        # Create Button component
+        cat > src/components/ui/button.tsx << 'EOL'
+        import * as React from "react"
+        import { cn } from "@/lib/utils"
+
+        export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+          variant?: 'default' | 'outline' | 'ghost'
+          size?: 'default' | 'sm' | 'lg' | 'icon'
+        }
+
+        const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+          ({ className, variant = 'default', size = 'default', ...props }, ref) => {
+            return (
+              <button
+                className={cn(
+                  "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+                  {
+                    'bg-primary text-primary-foreground hover:bg-primary/90': variant === 'default',
+                    'border border-input bg-background hover:bg-accent hover:text-accent-foreground': variant === 'outline',
+                    'hover:bg-accent hover:text-accent-foreground': variant === 'ghost',
+                  },
+                  {
+                    'h-10 px-4 py-2': size === 'default',
+                    'h-9 rounded-md px-3': size === 'sm',
+                    'h-11 rounded-md px-8': size === 'lg',
+                    'h-10 w-10': size === 'icon',
+                  },
+                  className
+                )}
+                ref={ref}
+                {...props}
+              />
+            )
+          }
+        )
+        Button.displayName = "Button"
+
+        export { Button }
+        EOL
+
+        # Create Toaster component
+        cat > src/components/ui/toaster.tsx << 'EOL'
+        export function Toaster() {
+          return null
+        }
+        EOL
+
+        # Create use-toast hook
+        cat > src/components/ui/use-toast.tsx << 'EOL'
+        export function useToast() {
+          return {
+            toast: (props: any) => console.log('Toast:', props)
+          }
+        }
+        EOL
+
+    - name: Commit and Push Changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Setup IBEDIS Connect project structure"
+        git push
+
+    - name: Setup Complete
+      run: |
+        echo "✅ Project setup complete!"
+        echo "📋 Next steps:"
+        echo "1. Clone the repository locally"
+        echo "2. Run 'npm install'"
+        echo "3. Configure your .env file"
+        echo "4. Deploy to Vercel"
